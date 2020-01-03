@@ -1,17 +1,14 @@
 package AbstractClasses;
 
-import com.github.junrar.Archive;
 import com.github.junrar.Junrar;
 import com.github.junrar.exception.RarException;
-import com.github.junrar.impl.FileVolumeManager;
-import com.github.junrar.rarfile.FileHeader;
 import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
 import org.codehaus.plexus.archiver.tar.TarXZUnArchiver;
 import org.codehaus.plexus.archiver.zip.ZipUnArchiver;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 
-import java.io.*;
-import java.nio.file.Paths;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.concurrent.BlockingQueue;
 
@@ -85,8 +82,6 @@ public class ArchiveExtractor {
 
 
     public static void extractRAR(String inputPath, String destinationDirectory) {
-        System.out.println("DEST "+destinationDirectory);
-        System.out.println(new File(destinationDirectory).exists());
         try {
             Junrar.extract(inputPath, destinationDirectory);
         } catch (IOException e) {

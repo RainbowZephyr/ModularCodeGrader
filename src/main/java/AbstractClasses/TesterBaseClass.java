@@ -276,29 +276,6 @@ public abstract class TesterBaseClass {
     }
 
 
-    public List<String> readTestFile(String path) {
-        try {
-            String absolutePath;
-            if (!path.startsWith("/")) {
-                absolutePath = "/" + path;
-            } else {
-                absolutePath = path;
-            }
-
-            InputStream resourceStream = TesterBaseClass.class.getResourceAsStream(absolutePath);
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resourceStream));
-
-            List<String> lines = bufferedReader.lines().collect(Collectors.toList());
-            lines =
-                    lines.stream().filter(v -> !v.isEmpty()).collect(toCollection(ArrayList::new));
-
-            return lines;
-        } catch (Exception e) {
-            e.printStackTrace();
-            this.logEntry("ERROR READING TEST FILE: " + path);
-        }
-        return null;
-    }
 
     public void clearOrCreateFile(String path) {
         try {
