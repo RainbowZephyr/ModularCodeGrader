@@ -17,10 +17,8 @@ public class FilesHandler {
     public static void moveDirectory(String sourcePath, String destinationPath) {
         try {
             File destinationDirectory = new File(destinationPath);
-            if (!destinationDirectory.exists() && destinationDirectory.isDirectory()) {
+            if (!destinationDirectory.exists()) {
                 destinationDirectory.mkdirs();
-            } else {
-                throw new IOException("Destination path not a directory");
             }
 
             Files.move(new File(sourcePath).toPath(), new File(destinationPath).toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -59,6 +57,39 @@ public class FilesHandler {
 
     }
 
+
+    public static List<String> search(String directory, String suffix) {
+
+        ArrayList<String> files = new ArrayList<>();
+        try {
+            files = Files.walk(Paths.get(directory))
+                    .filter(Files::isRegularFile)
+                    .map(f -> f.toAbsolutePath().toString())
+                    .filter(p -> p.endsWith(suffix))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return files;
+    }
+
+    public static List<String> searchDirectories(String directory, String suffix) {
+
+        ArrayList<String> files = new ArrayList<>();
+        try {
+            files = Files.walk(Paths.get(directory))
+                    .filter(Files::isDirectory)
+                    .map(f -> f.toAbsolutePath().toString())
+                    .filter(p -> p.endsWith(suffix))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return files;
+    }
+
     public static List<String> readTestFile(String path) {
         try {
             String absolutePath;
@@ -92,7 +123,7 @@ public class FilesHandler {
 
             File destinationFile = new File(destinationPath);
 
-            if(destinationFile.exists()) {
+            if (destinationFile.exists()) {
                 throw new IOException("File already exists");
             }
 
@@ -123,8 +154,6 @@ public class FilesHandler {
         }
 
     }
-
-
 
 
 }

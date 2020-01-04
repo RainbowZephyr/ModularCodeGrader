@@ -8,6 +8,9 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {
@@ -107,7 +110,7 @@ public class Main {
 //        FilesHandler.moveBinaryFile("maven-3.6.3.tar.xz", "/home/ahmed/Documents/game/m.tar.xz");
 //        ArchiveExtractor.extractArchiveByExtension("/home/ahmed/Documents/game/m.tar.xz", "/home/ahmed/Documents/game/");
 
-
+//        Files.walk(Paths.get("/home/ahmed/Documents/game/M1/build/submissions835_2019_060_20_41_15_368/")).
         switch (labNumber) {
             case 0:
                 TesterBaseClass lab0 = new M1Tester("/home/ahmed/Documents/game/M1", "", "/home/ahmed/Documents/game/M1/logs", "", true, timeout, 2);
