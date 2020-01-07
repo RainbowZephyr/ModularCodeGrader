@@ -41,7 +41,7 @@ public class Main {
 //            String javaPath = "";
 
 //            int labNumber = Integer.parseInt((String) cmd.getParsedOptionValue("lab"));
-        long timeout = 2;
+        long timeout = 300;
         boolean clean = false;
         boolean stats = false;
         int threads = Runtime.getRuntime().availableProcessors();
@@ -113,7 +113,7 @@ public class Main {
 //        Files.walk(Paths.get("/home/ahmed/Documents/game/M1/build/submissions835_2019_060_20_41_15_368/")).
         switch (labNumber) {
             case 0:
-                TesterBaseClass lab0 = new M1Tester("/home/ahmed/Documents/game/M1", "", "/home/ahmed/Documents/game/M1/logs", "", true, timeout, 2);
+                TesterBaseClass lab0 = new M1Tester("/home/ahmed/Documents/game/M1", "/usr/bin/mvn", "/home/ahmed/Documents/game/M1/logs", "", true, timeout, 16);
                 lab0.run();
                 lab0.generateGradesPerTutorial(stats);
                 break;

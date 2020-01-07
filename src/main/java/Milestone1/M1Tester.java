@@ -2,6 +2,7 @@ package Milestone1;
 
 import AbstractClasses.ArchiveExtractor;
 import AbstractClasses.FilesHandler;
+import AbstractClasses.ProcessHandler;
 import AbstractClasses.TesterBaseClass;
 
 import java.io.File;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,9 +41,15 @@ public class M1Tester extends TesterBaseClass {
 
             String path = this.unzipDir + id + "/";
             int taskResult = 0;
-            if (this.cleanBuild) {
-                this.handleMavenProject(file, path, id);
-            }
+
+            this.handleMavenProject(file, path, id);
+
+            String command[] = {this.mavenPath,"-l", "maven_log.txt", "clean", "compile", "test"};
+            ProcessHandler pHandler = new ProcessHandler(command, this.getTimeOut(), TimeUnit.SECONDS, pomPath);
+
+            pHandler.spawn();
+
+
         }
 
 

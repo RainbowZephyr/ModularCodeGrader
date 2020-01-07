@@ -30,6 +30,16 @@ public class ProcessHandler {
 
     }
 
+    public ProcessHandler(List<String> commandArray, long timeOut, TimeUnit timeUnit, String processDirectory){
+        this.processBuilder = new ProcessBuilder(commandArray);
+        this.timeOut = timeOut;
+        this.timeUnit = timeUnit;
+
+        processBuilder.directory(new File(processDirectory));
+
+
+    }
+
     public ProcessHandler(String[] commandArray, long timeOut, TimeUnit timeUnit, String processDirectory, Map<String, String> envVariables){
         List<String> commandList = Arrays.asList(commandArray);
 
@@ -42,6 +52,16 @@ public class ProcessHandler {
         Map<String, String> environment = this.processBuilder.environment();
         environment.putAll(envVariables);
 
+    }
+
+    public ProcessHandler(String[] commandArray, long timeOut, TimeUnit timeUnit, String processDirectory){
+        List<String> commandList = Arrays.asList(commandArray);
+
+        this.processBuilder = new ProcessBuilder(commandList);
+        this.timeOut = timeOut;
+        this.timeUnit = timeUnit;
+
+        processBuilder.directory(new File(processDirectory));
     }
 
     public boolean spawn(){

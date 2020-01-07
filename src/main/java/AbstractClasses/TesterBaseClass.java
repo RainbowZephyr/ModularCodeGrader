@@ -30,7 +30,7 @@ public abstract class TesterBaseClass {
     private long timeOut;
     private String idsFilePath;
     private static int threads;
-    private String mavenPath;
+    protected String mavenPath;
 
 
     public TesterBaseClass(String workingDir, String mavenPath, String logDir, String idsFilePath,
