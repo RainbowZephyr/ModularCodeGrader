@@ -1,4 +1,4 @@
-package Milestone1;
+package TesterImplementation;
 
 import AbstractClasses.ArchiveExtractor;
 import AbstractClasses.FilesHandler;
@@ -15,13 +15,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class M1Tester extends TesterBaseClass {
+public class TesterClass extends TesterBaseClass {
 
     private String unzipDir;
     private static Pattern srcRegex = Pattern.compile("(.+?)(src/?)");
     private String pomPath;
 
-    public M1Tester(String workingDir, String mavenPath, String logDir, String idsFilePath, boolean cleanBuild, long timeOut, int threads) {
+    public TesterClass(String workingDir, String mavenPath, String logDir, String idsFilePath, boolean cleanBuild, long timeOut, int threads) {
         super(workingDir, mavenPath, logDir, idsFilePath, cleanBuild, timeOut, threads);
         if (!workingDir.endsWith("/")) {
             this.setWorkingDir(workingDir + "/");

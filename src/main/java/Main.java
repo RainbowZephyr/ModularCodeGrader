@@ -1,170 +1,148 @@
-import AbstractClasses.ArchiveExtractor;
-import AbstractClasses.FilesHandler;
 import AbstractClasses.TesterBaseClass;
-import Milestone1.M1Tester;
-import junit.framework.Test;
+import TesterImplementation.TesterClass;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.File;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
         Options options = new Options();
-        options.addOption("logdir", true, "Sets path for logging directory");
+        options.addOption("logdir", true, "Sets path for logging directory (optional)");
         options.addOption("submissiondir", true, "Sets path for submission directory");
         options.addOption("ids", true, "Path to csv file mapping ids to tutorial groups");
-        options.addOption("lab", true, "Choose lab test to run");
-        options.addOption("clean", false, "Cleans any previous build directories, default: n");
-        options.addOption("stats", false, "Enables statsistics, default: n");
-        options.addOption("maven", true, "Path to the maven executable");
-        options.addOption("builtin_maven", true, "Use builtin-maven, default: y");
+        options.addOption("help", false, "Prints help");
+        options.addOption("h", false, "Prints help");
 
-        options.addOption("java", true, "Path to the java executable");
 
-        options.addOption("timeout", true, "Choose lab test to run, default: 10s");
+        options.addOption("stats", false, "Enables statistics (optional)");
+        options.addOption("mavenpath", true, "Path to the maven executable");
+        options.addOption("testpath", true, "Path to the java test file");
+
+
+        options.addOption("timeout", true, "Choose lab test to run, default: 300s");
         options.addOption("threads", true, "Choose number of parallel tests to run, default: number of cores");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("help") || cmd.hasOption("h")) {
+            StringBuilder help = new StringBuilder();
+            help.append("-");
+            help.append(options.getOption("logdir").getOpt());
+            help.append("\t");
+            help.append(options.getOption("logdir").getDescription());
+            help.append("\n");
+
+            help.append("-");
+            help.append(options.getOption("submissiondir").getOpt());
+            help.append("\t");
+            help.append(options.getOption("submissiondir").getDescription());
+            help.append("\n");
+
+            help.append("-");
+            help.append(options.getOption("stats").getOpt());
+            help.append("\t");
+            help.append(options.getOption("stats").getDescription());
+            help.append("\n");
+
+            help.append("-");
+            help.append(options.getOption("mavenpath").getOpt());
+            help.append("\t");
+            help.append(options.getOption("mavenpath").getDescription());
+            help.append("\n");
+
+            help.append("-");
+            help.append(options.getOption("testpath").getOpt());
+            help.append("\t");
+            help.append(options.getOption("testpath").getDescription());
+            help.append("\n");
+
+            help.append("-");
+            help.append(options.getOption("timeout").getOpt());
+            help.append("\t");
+            help.append(options.getOption("timeout").getDescription());
+            help.append("\n");
+
+            help.append("-");
+            help.append(options.getOption("threads").getOpt());
+            help.append("\t");
+            help.append(options.getOption("threads").getDescription());
+            help.append("\n");
 
 
-//        if (cmd.hasOption("lab") && cmd.hasOption("ids") && cmd.hasOption("submissiondir") && cmd.hasOption("python")) {
-//            String submissionDir = (String) cmd.getParsedOptionValue("submissiondir");
-//            String idsFile = (String) cmd.getParsedOptionValue("ids");
-//            String loggingDir = "";
-//            String pythonPath = (String) cmd.getParsedOptionValue("python");
-//            String javaPath = "";
+            System.out.println(help.toString());
 
-//            int labNumber = Integer.parseInt((String) cmd.getParsedOptionValue("lab"));
-        long timeout = 300;
-        boolean clean = false;
-        boolean stats = false;
-        int threads = Runtime.getRuntime().availableProcessors();
+        } else if (cmd.hasOption("lab")
+                && cmd.hasOption("ids")
+                && cmd.hasOption("submissiondir")
+                && cmd.hasOption("mavenpath")
+                && cmd.hasOption("testpath")) {
+            String submissionDir = (String) cmd.getParsedOptionValue("submissiondir");
+            String idsFile = (String) cmd.getParsedOptionValue("ids");
+            String loggingDir = "";
+            String mavenPath = (String) cmd.getParsedOptionValue("mavenpath");
+            String testPath = (String) cmd.getParsedOptionValue("testpath");
 
-//            if (cmd.hasOption("logdir")) {
-//                loggingDir = (String) cmd.getParsedOptionValue("logdir");
-//            }
-//
-//            if (cmd.hasOption("clean")) {
-//                clean = true;
-//            }
-//
-//            if (cmd.hasOption("threads")) {
-//                threads = Integer.parseInt((String) cmd.getParsedOptionValue("threads"));
-//            }
-//
-//            if (cmd.hasOption("stats")) {
-//                stats = true;
-//            }
-//
-//            if (cmd.hasOption("timeout")) {
-//                timeout = Long.parseLong((String) cmd.getParsedOptionValue("timeout"));
-//
-//            }
-//
-//
-//            File file = new File(idsFile);
-//            if (!file.exists() || !file.isFile()) {
-//                System.err.println("IDS FILE MUST EXIST");
-//                return;
-//            }
-//
-//            file = new File(submissionDir);
-//
-//            if (!file.exists() && !file.isDirectory()) {
-//                System.out.println(file.getAbsolutePath());
-//                System.err.println("SUBMISSION DIRECTORY MUST EXIST");
-//                return;
-//            }
-//
-//            file = new File(pythonPath);
-//
-//            if (!file.exists() || file.isDirectory()) {
-//                System.out.println(file.getAbsolutePath());
-//                System.err.println("PYTHON EXECUTABLE MUST EXIST");
-//                return;
-//            }
-//
-//            if (cmd.hasOption("java")) {
-//                javaPath = (String) cmd.getParsedOptionValue("java");
-//                file = new File(javaPath);
-//
-//                if (!file.exists() || file.isDirectory()) {
-//                    System.out.println(file.getAbsolutePath());
-//                    System.err.println("JAVA EXECUTABLE MUST EXIST");
-//                    return;
-//                }
-//
-//
-//            }
+            long timeout = 300;
+            boolean stats = false;
+            int threads = Runtime.getRuntime().availableProcessors();
 
-//            file = null; // Allows for faster garbage collection
+            if (cmd.hasOption("logdir")) {
+                loggingDir = (String) cmd.getParsedOptionValue("logdir");
+            }
+
+            if (cmd.hasOption("threads")) {
+                threads = Integer.parseInt((String) cmd.getParsedOptionValue("threads"));
+            }
+
+            if (cmd.hasOption("stats")) {
+                stats = true;
+            }
+
+            if (cmd.hasOption("timeout")) {
+                timeout = Long.parseLong((String) cmd.getParsedOptionValue("timeout"));
+            }
+
+            File file = new File(idsFile);
+            if (!file.exists() || !file.isFile()) {
+                System.err.println("IDS FILE MUST EXIST");
+                return;
+            }
+
+            file = new File(submissionDir);
+            if (!file.exists() && !file.isDirectory()) {
+                System.out.println(file.getAbsolutePath());
+                System.err.println("SUBMISSION DIRECTORY MUST EXIST");
+                return;
+            }
 
 
-        int labNumber = 0;
-//        FilesHandler.moveBinaryFile("maven-3.6.3.tar.xz", "/home/ahmed/Documents/game/m.tar.xz");
-//        ArchiveExtractor.extractArchiveByExtension("/home/ahmed/Documents/game/m.tar.xz", "/home/ahmed/Documents/game/");
+            file = new File(mavenPath);
+            if (!file.exists() || file.isDirectory()) {
+                System.out.println(file.getAbsolutePath());
+                System.err.println("MAVEN EXECUTABLE MUST EXIST");
+                return;
+            }
 
-//        Files.walk(Paths.get("/home/ahmed/Documents/game/M1/build/submissions835_2019_060_20_41_15_368/")).
-        switch (labNumber) {
-            case 0:
-                TesterBaseClass lab0 = new M1Tester("/home/ahmed/Documents/game/M1", "/usr/bin/mvn", "/home/ahmed/Documents/game/M1/logs", "", true, timeout, 16);
-                lab0.run();
-                lab0.generateGradesPerTutorial(stats);
-                break;
+            file = new File(testPath);
+            if (!file.exists() || file.isDirectory()) {
+                System.out.println(file.getAbsolutePath());
+                System.err.println("TEST CLASS MUST EXIST");
+                return;
+            }
 
-            default:
-                System.err.println("LAB TEST NOT YET IMPLEMENTED");
+            TesterBaseClass tester = new TesterClass("/home/ahmed/Documents/game/M1", "/usr/bin/mvn", "/home/ahmed/Documents/game/M1/logs", "", true, timeout, 16);
+            tester.run();
+            tester.generateGradesPerTutorial(stats);
+
+        } else {
+            System.err.println("ALL REQUIRED OPTIONS MUST BE DEFINED, RUN WITH -help ARGUMENT TO SEE OPTIONS");
         }
-
-//        } else {
-//            System.err.println("ALL OPTIONS WITH THE EXCEPTION OF LOGDIR MUST BE DEFINED");
-//        }
 
     }
 
-
-//	static void Test3() {
-//
-//		String postRegex = Lab1.RegExInfToPostConverter.infixToPostfix("(a|b|ab)");
-//
-//		System.out.println(postRegex);
-//
-//		Lab1.ExpressionContainer ecResult = Lab1.RegexPostToNFA.constructNFAFromRegex(postRegex);
-//
-////		System.out.println(ecResult.exp);
-////		System.out.println(ecResult.startState);
-////		System.out.println(ecResult.finalState);
-////		System.out.println(ecResult.allSymbols);
-////		System.out.println(ecResult.states);
-////		System.out.println(ecResult.transitions);
-//
-//		NFAReader nfaInput = new NFAReader(ecResult);
-//
-//		System.out.println(nfaInput.getNfaStates());
-//		System.out.println(nfaInput.getNfaAlpha());
-//		System.out.println(nfaInput.getNfaStartState());
-//		System.out.println(nfaInput.getNfaFinalState());
-//		System.out.println(nfaInput.getNfaTransition());
-//
-//		Lab1.DFA ttable = new Lab1.DFA();
-//		ttable.convertNFA(nfaInput);
-//
-//		System.out.println(ttable.getNfaStates());
-//		System.out.println(ttable.getDFAStates());
-//		System.out.println(ttable.getAlphbetSymbols());
-//		System.out.println(ttable.getAlphabetStates());
-//		System.out.println(ttable.getAcceptedStates());
-//
-//		String input = "aaab";
-//
-//		System.out.println(ttable.evaluateString(input));
-//
-//	}
 
 }
