@@ -134,7 +134,7 @@ public class Main {
                 return;
             }
 
-            TesterBaseClass tester = new TesterClass("/home/ahmed/Documents/game/M1", "/usr/bin/mvn", "/home/ahmed/Documents/game/M1/logs", "", true, timeout, 16);
+            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, loggingDir, idsFile, true, timeout, threads);
             tester.run();
             tester.generateGradesPerTutorial(stats);
 
