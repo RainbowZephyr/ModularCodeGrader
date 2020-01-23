@@ -27,6 +27,14 @@ public class FilesHandler {
         }
     }
 
+    public static void createDirectory(String path) {
+        File destinationDirectory = new File(path);
+        if (!destinationDirectory.exists()) {
+            destinationDirectory.mkdirs();
+        }
+    }
+
+
     public static void moveFiles(String sourceDirectory, String destinationDirectory, String suffix) {
         final Pattern fileNameRegex = Pattern.compile("(\\w+)\\." + suffix);
         Matcher matcher;

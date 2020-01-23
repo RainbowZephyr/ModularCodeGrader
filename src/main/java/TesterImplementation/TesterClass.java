@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -20,9 +21,11 @@ public class TesterClass extends TesterBaseClass {
     private String unzipDir;
     private static Pattern srcRegex = Pattern.compile("(.+?)(src/?)");
     private String pomPath;
+    private String testClassPath;
 
-    public TesterClass(String workingDir, String mavenPath, String logDir, String idsFilePath, boolean cleanBuild, long timeOut, int threads) {
+    public TesterClass(String workingDir, String mavenPath, String testClassPath, String logDir, String idsFilePath, boolean cleanBuild, long timeOut, int threads) {
         super(workingDir, mavenPath, logDir, idsFilePath, cleanBuild, timeOut, threads);
+        this.testClassPath = testClassPath;
         if (!workingDir.endsWith("/")) {
             this.setWorkingDir(workingDir + "/");
         }
@@ -49,7 +52,18 @@ public class TesterClass extends TesterBaseClass {
 
             pHandler.spawn();
 
+        }
 
+    }
+
+    private void copyTestFile(String basePath) {
+        String testPath = Paths.get(basePath, "test/java").toString();
+        FilesHandler.createDirectory(testPath);
+
+        try {
+            Files.copy(Paths.get(this.testClassPath), Paths.get(testPath), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
 
@@ -63,20 +77,26 @@ public class TesterClass extends TesterBaseClass {
             ArchiveExtractor.extractArchiveByExtension(this.getWorkingDir() + file, path);
             List<String> srcPath = FilesHandler.searchDirectories(path, "src");
 
+            // Check for non empty submissions
             if (!srcPath.isEmpty()) {
                 String directories[] = new File(srcPath.get(0)).list();
                 String basePath = srcPath.get(0);
 
+                // Move each directory to match the maven format
                 for (String dir : directories) {
                     FilesHandler.moveDirectory(Paths.get(basePath, dir).toString(), Paths.get(basePath, "main/java", dir).toString());
                 }
 
+                // Scan the new path for the pom file to set maven location later when testing
                 Matcher matcher = srcRegex.matcher(basePath);
                 if (matcher.find()) {
                     List<String> pomFile = FilesHandler.readTestFile("pom.xml");
                     Files.write(Paths.get(matcher.group(1), "pom.xml"), pomFile);
                     this.pomPath = matcher.group(1);
                 }
+
+                this.copyTestFile(basePath);
+
             }
 
         } catch (FileNotFoundException e) {

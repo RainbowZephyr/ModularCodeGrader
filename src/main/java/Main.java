@@ -119,7 +119,6 @@ public class Main {
                 return;
             }
 
-
             file = new File(mavenPath);
             if (!file.exists() || file.isDirectory()) {
                 System.out.println(file.getAbsolutePath());
@@ -134,7 +133,7 @@ public class Main {
                 return;
             }
 
-            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, loggingDir, idsFile, true, timeout, threads);
+            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, testPath, loggingDir, idsFile, true, timeout, threads);
             tester.run();
             tester.generateGradesPerTutorial(stats);
 
