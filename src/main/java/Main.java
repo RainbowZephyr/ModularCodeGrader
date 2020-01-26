@@ -75,9 +75,9 @@ public class Main {
 
             System.out.println(help.toString());
 
-        } else if (cmd.hasOption("lab")
-                && cmd.hasOption("ids")
-                && cmd.hasOption("submissiondir")
+        } else if (
+   
+                 cmd.hasOption("submissiondir")
                 && cmd.hasOption("mavenpath")
                 && cmd.hasOption("testpath")) {
             String submissionDir = (String) cmd.getParsedOptionValue("submissiondir");
@@ -106,11 +106,8 @@ public class Main {
                 timeout = Long.parseLong((String) cmd.getParsedOptionValue("timeout"));
             }
 
-            File file = new File(idsFile);
-            if (!file.exists() || !file.isFile()) {
-                System.err.println("IDS FILE MUST EXIST");
-                return;
-            }
+            File file; // = new File(idsFile);
+  
 
             file = new File(submissionDir);
             if (!file.exists() && !file.isDirectory()) {
