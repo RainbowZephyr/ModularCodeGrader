@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toCollection;
 
 public abstract class TesterBaseClass {
 
-    private SortedMap<String, TreeMap<String, Double>> idsToGradeMap;
+    private SortedMap<String, String> idsToGradeMap;
     private static ThreadPoolExecutor threadPool;
 //    private static final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
 
@@ -31,14 +31,15 @@ public abstract class TesterBaseClass {
     private String idsFilePath;
     private static int threads;
     protected String mavenPath;
+    protected String testPath;
 
 
-    public TesterBaseClass(String workingDir, String mavenPath, String logDir, String idsFilePath,
+    public TesterBaseClass(String workingDir, String mavenPath, String testPath, String logDir, String idsFilePath,
                            boolean cleanBuild, long timeOut, int threads) {
         this.workingDir = workingDir;
         this.mavenPath = mavenPath;
         this.logDir = logDir;
-
+        this.testPath = testPath;
 
         this.idsFilePath = idsFilePath;
 
@@ -138,113 +139,115 @@ public abstract class TesterBaseClass {
             System.err.println("Cannot create log directory: " + this.logDir);
         }
 
+        System.out.println(idsToGradeMap);
+
     }
 
-    public void generateGradesPerTutorial(boolean generateStatistics) {
-        SortedMap<String, ArrayList<String>> tutorialToIds = Collections.synchronizedSortedMap(new TreeMap<>());
-
-
-        Reader in = null;
-        try {
-            in = new FileReader("ids.csv"); // TODO Change path
-            List<CSVRecord> records = CSVFormat.DEFAULT
-//                    .withHeader(columns)
-                    .withFirstRecordAsHeader()
-                    .parse(in).getRecords();
-
-            ArrayList<String> tutorialGroups = records.stream().map(x -> x.get(2)).distinct().collect(Collectors.toCollection(ArrayList::new));
-
-            records.parallelStream().forEach(record -> addToMap(tutorialToIds, record.get(2), record.get(0)));
-
-
-            final String writePath = (this.logDir.equals("")) ? this.workingDir : this.logDir;
-
-            tutorialGroups.forEach(tutorial -> {
-                try {
-                    final FileWriter fileWriter = new FileWriter(writePath + tutorial + "_grades.txt");
-                    tutorialToIds.get(tutorial).stream().sorted().forEach(id -> {
-                        if (idsToGradeMap.containsKey(id)) {
-                            double grade = idsToGradeMap.get(id).values().stream().mapToDouble(i -> i).sum();
-
-                            try {
-                                fileWriter.write(id + ": " + grade + "\n");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                fileWriter.write(id + " SUBMISSION NOT FOUND \n");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    fileWriter.flush();
-                    fileWriter.close();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-//            tutorialToIds.forEach((k, v) -> System.out.println(k + v));
-
-//            List<String> tutorialGroups =  records.stream().filter(x -> x.get("tutorial")).distinct();
-        } catch (Exception e) {
-            this.logEntry("ERROR CANNOT OPEN IDS FILE");
-        }
-
-
-        if (generateStatistics) {
-            ArrayList<String> taskHeaders = new ArrayList<>();
-            TreeMap<String, ArrayList<Double>> gradesPerTask = new TreeMap<>();
-
-
-            for (Map.Entry<String, TreeMap<String, Double>> entry : idsToGradeMap.entrySet()) {
-                System.out.println(entry.getKey() + " = " + entry.getValue());
-
-                TreeMap<String, Double> innerMap = entry.getValue();
-
-
-                for (Map.Entry<String, Double> innerEntry : innerMap.entrySet()) {
-                    taskHeaders.add(innerEntry.getKey());
-                }
-
-                break;
-            }
-
-            idsToGradeMap.forEach((key, innerMap) -> {
-                innerMap.forEach((task, grade) -> {
-                    addToMap(gradesPerTask, task, grade);
-                });
-            });
-
-            HashMap<Double, Integer> histogram = new HashMap<>();
-
-            gradesPerTask.forEach((task, gradesArray) -> {
-                histogram.clear();
-                gradesArray.forEach(grade -> {
-                    if (histogram.containsKey(grade)) {
-                        int occurrence = histogram.get(grade);
-                        histogram.put(grade, ++occurrence);
-                    } else {
-                        histogram.put(grade, 1);
-                    }
-                });
-                OptionalDouble average = gradesArray.stream().mapToDouble(i -> i).average();
-
-                System.out.println("=========== " + task + " ===========");
-                System.out.println(histogram);
-
-                if (average.isPresent()) {
-                    System.out.println("Average Grade: " + average.getAsDouble() * 100 + "%");
-                }
-            });
-
-
-
-        }
-    }
+//    public void generateGradesPerTutorial(boolean generateStatistics) {
+//        SortedMap<String, ArrayList<String>> tutorialToIds = Collections.synchronizedSortedMap(new TreeMap<>());
+//
+//
+//        Reader in = null;
+//        try {
+//            in = new FileReader("ids.csv"); // TODO Change path
+//            List<CSVRecord> records = CSVFormat.DEFAULT
+////                    .withHeader(columns)
+//                    .withFirstRecordAsHeader()
+//                    .parse(in).getRecords();
+//
+//            ArrayList<String> tutorialGroups = records.stream().map(x -> x.get(2)).distinct().collect(Collectors.toCollection(ArrayList::new));
+//
+//            records.parallelStream().forEach(record -> addToMap(tutorialToIds, record.get(2), record.get(0)));
+//
+//
+//            final String writePath = (this.logDir.equals("")) ? this.workingDir : this.logDir;
+//
+//            tutorialGroups.forEach(tutorial -> {
+//                try {
+//                    final FileWriter fileWriter = new FileWriter(writePath + tutorial + "_grades.txt");
+//                    tutorialToIds.get(tutorial).stream().sorted().forEach(id -> {
+//                        if (idsToGradeMap.containsKey(id)) {
+//
+//
+//                            try {
+//                                fileWriter.write(id + ": " + grade + "\n");
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        } else {
+//                            try {
+//                                fileWriter.write(id + " SUBMISSION NOT FOUND \n");
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    });
+//
+//                    fileWriter.flush();
+//                    fileWriter.close();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            });
+////            tutorialToIds.forEach((k, v) -> System.out.println(k + v));
+//
+////            List<String> tutorialGroups =  records.stream().filter(x -> x.get("tutorial")).distinct();
+//        } catch (Exception e) {
+//            this.logEntry("ERROR CANNOT OPEN IDS FILE");
+//        }
+//
+//
+//        if (generateStatistics) {
+//            ArrayList<String> taskHeaders = new ArrayList<>();
+//            TreeMap<String, ArrayList<Double>> gradesPerTask = new TreeMap<>();
+//
+//
+//            for (Map.Entry<String, TreeMap<String, Double>> entry : idsToGradeMap.entrySet()) {
+//                System.out.println(entry.getKey() + " = " + entry.getValue());
+//
+//                TreeMap<String, Double> innerMap = entry.getValue();
+//
+//
+//                for (Map.Entry<String, Double> innerEntry : innerMap.entrySet()) {
+//                    taskHeaders.add(innerEntry.getKey());
+//                }
+//
+//                break;
+//            }
+//
+//            idsToGradeMap.forEach((key, innerMap) -> {
+//                innerMap.forEach((task, grade) -> {
+//                    addToMap(gradesPerTask, task, grade);
+//                });
+//            });
+//
+//            HashMap<Double, Integer> histogram = new HashMap<>();
+//
+//            gradesPerTask.forEach((task, gradesArray) -> {
+//                histogram.clear();
+//                gradesArray.forEach(grade -> {
+//                    if (histogram.containsKey(grade)) {
+//                        int occurrence = histogram.get(grade);
+//                        histogram.put(grade, ++occurrence);
+//                    } else {
+//                        histogram.put(grade, 1);
+//                    }
+//                });
+//                OptionalDouble average = gradesArray.stream().mapToDouble(i -> i).average();
+//
+//                System.out.println("=========== " + task + " ===========");
+//                System.out.println(histogram);
+//
+//                if (average.isPresent()) {
+//                    System.out.println("Average Grade: " + average.getAsDouble() * 100 + "%");
+//                }
+//            });
+//
+//
+//
+//        }
+//    }
 
     private static void addToMap(SortedMap<String, ArrayList<String>> map, String key, String element) {
         if (map.containsKey(key)) {
@@ -315,7 +318,7 @@ public abstract class TesterBaseClass {
     public abstract void test(String file);
 
 
-    public SortedMap<String, TreeMap<String, Double>> getIdsToGradeMap() {
+    public SortedMap<String, String> getIdsToGradeMap() {
         return idsToGradeMap;
     }
 

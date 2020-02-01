@@ -27,10 +27,26 @@ public class FilesHandler {
         }
     }
 
+
     public static void createDirectory(String path) {
         File destinationDirectory = new File(path);
         if (!destinationDirectory.exists()) {
             destinationDirectory.mkdirs();
+        }
+    }
+
+
+    public static void copyFile(String sourcePath, String destinationPath, String destinationName, boolean createDirs) {
+        try {
+            File destinationDirectory = new File(destinationPath);
+            if (createDirs) {
+                if (!destinationDirectory.exists()) {
+                    destinationDirectory.mkdirs();
+                }
+            }
+            Files.copy(Paths.get(sourcePath), Paths.get(destinationPath, destinationName));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
