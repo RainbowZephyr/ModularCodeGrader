@@ -27,6 +27,20 @@ public class FilesHandler {
         }
     }
 
+    public static void copyFile(String sourcePath, String destinationPath, String destinationName, boolean createDirs) {
+        try {
+            File destinationDirectory = new File(destinationPath);
+            if(createDirs) {
+                if (!destinationDirectory.exists()) {
+                    destinationDirectory.mkdirs();
+                }
+            }
+            Files.copy(Paths.get(sourcePath), Paths.get(destinationPath, destinationName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void moveFiles(String sourceDirectory, String destinationDirectory, String suffix) {
         final Pattern fileNameRegex = Pattern.compile("(\\w+)\\." + suffix);
         Matcher matcher;

@@ -13,9 +13,9 @@ public class Main {
         Options options = new Options();
         options.addOption("logdir", true, "Sets path for logging directory (optional)");
         options.addOption("submissiondir", true, "Sets path for submission directory");
-        options.addOption("ids", true, "Path to csv file mapping ids to tutorial groups");
         options.addOption("help", false, "Prints help");
         options.addOption("h", false, "Prints help");
+        options.addOption("cleanbuild", false, "Deletes build folder on given submission dir");
 
 
         options.addOption("stats", false, "Enables statistics (optional)");
@@ -72,12 +72,15 @@ public class Main {
             help.append(options.getOption("threads").getDescription());
             help.append("\n");
 
+            help.append("-");
+            help.append(options.getOption("cleanbuild").getOpt());
+            help.append("\t");
+            help.append(options.getOption("cleanbuild").getDescription());
+            help.append("\n");
 
             System.out.println(help.toString());
 
-        } else if (
-   
-                 cmd.hasOption("submissiondir")
+        } else if (cmd.hasOption("submissiondir")
                 && cmd.hasOption("mavenpath")
                 && cmd.hasOption("testpath")) {
             String submissionDir = (String) cmd.getParsedOptionValue("submissiondir");
@@ -88,6 +91,7 @@ public class Main {
 
             long timeout = 300;
             boolean stats = false;
+            boolean cleanBuild = false;
             int threads = Runtime.getRuntime().availableProcessors();
 
             if (cmd.hasOption("logdir")) {
@@ -100,6 +104,10 @@ public class Main {
 
             if (cmd.hasOption("stats")) {
                 stats = true;
+            }
+
+            if (cmd.hasOption("cleanbuild")) {
+                cleanBuild = true;
             }
 
             if (cmd.hasOption("timeout")) {
@@ -131,7 +139,7 @@ public class Main {
                 return;
             }
 
-            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, loggingDir, idsFile, true, timeout, threads);
+            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, testPath, loggingDir, idsFile, cleanBuild, timeout, threads);
             tester.run();
             tester.generateGradesPerTutorial(stats);
 

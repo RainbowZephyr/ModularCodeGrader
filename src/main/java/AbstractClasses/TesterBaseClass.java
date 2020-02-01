@@ -31,14 +31,15 @@ public abstract class TesterBaseClass {
     private String idsFilePath;
     private static int threads;
     protected String mavenPath;
+    protected String testPath;
 
 
-    public TesterBaseClass(String workingDir, String mavenPath, String logDir, String idsFilePath,
+    public TesterBaseClass(String workingDir, String mavenPath, String testPath, String logDir, String idsFilePath,
                            boolean cleanBuild, long timeOut, int threads) {
         this.workingDir = workingDir;
         this.mavenPath = mavenPath;
         this.logDir = logDir;
-
+        this.testPath = testPath;
 
         this.idsFilePath = idsFilePath;
 
