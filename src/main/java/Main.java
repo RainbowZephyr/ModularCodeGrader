@@ -5,7 +5,13 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
 
@@ -141,12 +147,41 @@ public class Main {
             TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, testPath, loggingDir, idsFile, cleanBuild, timeout, threads);
 
             tester.run();
+            tester.generateGrades();
 //            tester.generateGradesPerTutorial(stats);
 
         } else {
             System.err.println("ALL REQUIRED OPTIONS MUST BE DEFINED, RUN WITH -help ARGUMENT TO SEE OPTIONS");
         }
-
+//      Pattern testRegex = Pattern.compile("Tests\\s+run:\\s+\\d+");
+//
+//        BufferedReader reader;
+//        try {
+//            reader = new BufferedReader(new FileReader(Paths.get("/tmp/M1/build/922/Game1/", "maven_log.txt").toString()));
+//            String line = reader.readLine();
+//            Matcher match;
+//
+//            while (line != null) {
+//                match =   testRegex.matcher(line);
+////                System.out.println(line);
+//                if(match.find()){
+//                    System.out.println(line);
+////                    this.getIdsToGradeMap().put(id, line);
+//                    break;
+//                }
+//
+//
+//                // read next line
+//                line = reader.readLine();
+//            }
+//            reader.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+////            System.err.println("FAILED READIND GRADES FOR " + id);
+//        } finally {
+//            // faster garbage collection
+//            reader = null;
+//        }
     }
 
 

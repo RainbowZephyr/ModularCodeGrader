@@ -16,6 +16,9 @@ import static java.util.stream.Collectors.toCollection;
 public abstract class TesterBaseClass {
 
     private SortedMap<String, String> idsToGradeMap;
+
+    private ConcurrentHashMap<String, String> idsToTestFile;
+
     private static ThreadPoolExecutor threadPool;
 //    private static final ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
 
@@ -33,6 +36,7 @@ public abstract class TesterBaseClass {
     protected String mavenPath;
     protected String testPath;
 
+    final private static Pattern testRegex = Pattern.compile("Tests\\s+run:\\s+\\d+");
 
     public TesterBaseClass(String workingDir, String mavenPath, String testPath, String logDir, String idsFilePath,
                            boolean cleanBuild, long timeOut, int threads) {
@@ -53,6 +57,7 @@ public abstract class TesterBaseClass {
         this.files = Arrays.stream(folder.listFiles()).map(File::getName).filter(TesterBaseClass::fileFilter).collect(toCollection(ArrayList<String>::new));
 
         this.idsToGradeMap = Collections.synchronizedSortedMap(new TreeMap<>());
+        this.idsToTestFile = new ConcurrentHashMap<>();
 
         this.filesHandled = new ConcurrentHashMap<>();
         Matcher matcher;
@@ -139,8 +144,78 @@ public abstract class TesterBaseClass {
             System.err.println("Cannot create log directory: " + this.logDir);
         }
 
-        System.out.println(idsToGradeMap);
+        threadPool = null;
 
+    }
+
+    public void generateGrades(){
+        ArrayList<Future> futures = new ArrayList<>();
+
+        idsToTestFile.forEach((id, logPath) ->{
+
+            Future future = getThreadPool().submit(() -> this.extractGrade(id, logPath));
+            futures.add(future);
+
+        });
+
+        for (Future future : futures) {
+            try {
+                future.get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                future.cancel(true);
+            }
+        }
+
+        System.out.println("SHUTTING DOWN THREAD POOL THREADS " + getThreadPool().getActiveCount());
+
+        getThreadPool().shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!getThreadPool().awaitTermination(timeOut, TimeUnit.MINUTES)) {
+                getThreadPool().shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!getThreadPool().awaitTermination(timeOut, TimeUnit.MINUTES))
+                    System.err.println("Pool did not terminate");
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            getThreadPool().shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println(idsToGradeMap);
+    }
+
+    private void extractGrade(String id, String logPath) {
+        BufferedReader reader;
+        try {
+
+            reader = new BufferedReader(new FileReader(new File(Paths.get(logPath).toString())));
+            String line = reader.readLine();
+            Matcher match;
+
+            while (line != null) {
+                match =  testRegex.matcher(line);
+                if(match.find()){
+                    this.getIdsToGradeMap().put(id, line);
+                    break;
+                }
+
+
+                // read next line
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("FAILED READIND GRADES FOR " + id);
+        } finally {
+            // faster garbage collection
+            reader = null;
+        }
     }
 
 //    public void generateGradesPerTutorial(boolean generateStatistics) {
@@ -348,6 +423,10 @@ public abstract class TesterBaseClass {
 
     public long getTimeOut() {
         return this.timeOut;
+    }
+
+    public ConcurrentHashMap<String, String> getIdsToTestFile() {
+        return idsToTestFile;
     }
 
 //    public static void main(String[] args) {

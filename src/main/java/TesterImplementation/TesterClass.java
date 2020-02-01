@@ -20,7 +20,7 @@ public class TesterClass extends TesterBaseClass {
     private String unzipDir;
     final private static Pattern srcRegex = Pattern.compile("(.+?)(src/?)");
     final private static Pattern fileRegex = Pattern.compile("submissions(\\d+)");
-    final private static Pattern testRegex = Pattern.compile("Tests\\s+run:\\d+");
+    final private static Pattern testRegex = Pattern.compile("Tests\\s+run:\\s+\\d+");
 
 
     private String pomPath;
@@ -30,7 +30,7 @@ public class TesterClass extends TesterBaseClass {
     public TesterClass(String workingDir, String mavenPath, String testPath, String logDir, String idsFilePath,
                        boolean cleanBuild, long timeOut, int threads) {
         super(workingDir, mavenPath, testPath, logDir, idsFilePath, cleanBuild, timeOut, threads);
-
+        System.out.println("TIMEOUT " + timeOut);
         if (!workingDir.endsWith("/")) {
             this.setWorkingDir(workingDir + "/");
         }
@@ -71,10 +71,12 @@ public class TesterClass extends TesterBaseClass {
 
             ProcessHandler pHandler = new ProcessHandler(command, this.getTimeOut(), TimeUnit.SECONDS, pomPath, env);
 
-            pHandler.spawn();
+            boolean converged = pHandler.spawn();
 
-            this.extractGrade(id);
-            System.out.println("FINISHED TEAM " + id);
+
+            System.out.println("FINISHED COMPILING TEAM " + id);
+            this.getIdsToTestFile().put(id, Paths.get(this.pomPath, "maven_log.txt").toString());
+
         }
 
     }
@@ -84,21 +86,23 @@ public class TesterClass extends TesterBaseClass {
         try {
             reader = new BufferedReader(new FileReader(Paths.get(this.pomPath, "maven_log.txt").toString()));
             String line = reader.readLine();
-            Matcher match = testRegex.matcher(line);
+            Matcher match;
 
             while (line != null) {
+                match =   testRegex.matcher(line);
                 if(match.find()){
                     this.getIdsToGradeMap().put(id, line);
                     break;
                 }
 
-                System.out.println(line);
+
                 // read next line
                 line = reader.readLine();
             }
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
+            System.err.println("FAILED READIND GRADES FOR " + id);
         } finally {
             // faster garbage collection
             reader = null;
