@@ -144,7 +144,7 @@ public class Main {
                 return;
             }
 
-            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, testPath, loggingDir, idsFile, cleanBuild, timeout, threads);
+            TesterBaseClass tester = new TesterClass(submissionDir, mavenPath, testPath, loggingDir, cleanBuild, timeout, threads);
 
             tester.run();
             tester.generateGrades();
