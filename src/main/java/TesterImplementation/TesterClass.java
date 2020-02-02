@@ -19,7 +19,7 @@ public class TesterClass extends TesterBaseClass {
     private String unzipDir;
     private String pomPath;
     final private static Pattern srcRegex = Pattern.compile("(.+?)(src/?)");
-    final private static Pattern fileRegex = Pattern.compile("submissions(\\d+)");
+    final private static Pattern fileRegex = Pattern.compile("t(\\d+)");
 
 
 
@@ -59,7 +59,7 @@ public class TesterClass extends TesterBaseClass {
             String command[] = {this.mavenPath, "-l", "maven_log.txt", "clean", "compile", "test"};
 
             Map<String, String> env = new HashMap<>();
-            env.put("MAVEN_OPTS", "-XX:CICompilerCount=2");
+            env.put("MAVEN_OPTS", "-XX:CICompilerCount=2 -XX:ParallelGCThreads=2");
 
             ProcessHandler pHandler = new ProcessHandler(command, this.getTimeOut(), TimeUnit.SECONDS, pomPath, env);
 

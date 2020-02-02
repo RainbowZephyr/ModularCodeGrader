@@ -23,8 +23,6 @@ public class Main {
         options.addOption("h", false, "Prints help");
         options.addOption("cleanbuild", false, "Deletes build folder on given submission dir");
 
-
-        options.addOption("stats", false, "Enables statistics (optional)");
         options.addOption("mavenpath", true, "Path to the maven executable");
         options.addOption("testpath", true, "Path to the java test file");
 
@@ -46,12 +44,6 @@ public class Main {
             help.append(options.getOption("submissiondir").getOpt());
             help.append("\t");
             help.append(options.getOption("submissiondir").getDescription());
-            help.append("\n");
-
-            help.append("-");
-            help.append(options.getOption("stats").getOpt());
-            help.append("\t");
-            help.append(options.getOption("stats").getDescription());
             help.append("\n");
 
             help.append("-");
@@ -98,7 +90,8 @@ public class Main {
             long timeout = 300;
             boolean stats = false;
             boolean cleanBuild = false;
-            int threads = Runtime.getRuntime().availableProcessors();
+            int threads = 0;
+
 
             if (cmd.hasOption("logdir")) {
                 loggingDir = (String) cmd.getParsedOptionValue("logdir");
@@ -106,6 +99,10 @@ public class Main {
 
             if (cmd.hasOption("threads")) {
                 threads = Integer.parseInt((String) cmd.getParsedOptionValue("threads"));
+            }
+
+            if (threads == 0) {
+                 threads = Runtime.getRuntime().availableProcessors() / 2;
             }
 
             if (cmd.hasOption("stats")) {
