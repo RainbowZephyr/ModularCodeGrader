@@ -34,11 +34,6 @@ public class Main {
         CommandLine cmd = parser.parse(options, args);
         if (cmd.hasOption("help") || cmd.hasOption("h")) {
             StringBuilder help = new StringBuilder();
-            help.append("-");
-            help.append(options.getOption("logdir").getOpt());
-            help.append("\t");
-            help.append(options.getOption("logdir").getDescription());
-            help.append("\n");
 
             help.append("-");
             help.append(options.getOption("submissiondir").getOpt());
